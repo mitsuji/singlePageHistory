@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>pushState サンプル</title>
+    <script>
+      // ?view=view1&parama=aaa&paramb=bbb
+      // ?view=view2&paramc=ccc&paramd=ddd
+      // ?view=view3&parame=eee&paramf=fff
+      window.onload = () => {
+          initView();
+      };
+      window.onpopstate = (event) => {
+          let state = event.state;
+          if (state) {
+              setView (state.view, state.params);
+          } else {
+              initView ();
+          }
+      }
+      function initView() {
+          let sp = new URLSearchParams(window.location.search);
+          let view = sp.get("view");
+          if (view) {
+              let params = {};
+              for (const key of sp.keys()) {
+                  if(key == "view") continue;
+                  params[key] = sp.get(key);
+              }
+              setView (view,params);
+          } else {
+              setView ("view1",{parama:"パラムA",paramb:"パラムB"});
+//              setView ("view2",{paramc:"パラムC",paramd:"パラムD"});
+//              setView ("view3",{parame:"パラムE",paramf:"パラムF"});
+          }
+      }
+      function setView(view, params) {
+          document.querySelector("#view1").style.display = "none";
+          document.querySelector("#view2").style.display = "none";
+          document.querySelector("#view3").style.display = "none";
+          if (view == "view1") {
+              document.querySelector("#view1").style.display = "block";
+              document.querySelector("#view1 span.parama").innerText = params["parama"];
+              document.querySelector("#view1 span.paramb").innerText = params["paramb"];
+          }
+          if (view == "view2") {
+              document.querySelector("#view2").style.display = "block";
+              document.querySelector("#view2 span.paramc").innerText = params["paramc"];
+              document.querySelector("#view2 span.paramd").innerText = params["paramd"];
+          }
+          if (view == "view3") {
+              document.querySelector("#view3").style.display = "block";
+              document.querySelector("#view3 span.parame").innerText = params["parame"];
+              document.querySelector("#view3 span.paramf").innerText = params["paramf"];
+          }
+      }
+      function transit(view, params) {
+          setView (view, params);
+          let sp = new URLSearchParams();
+          sp.set("view",view);
+          for (const key in params) {
+              sp.set(key,params[key]);
+          }
+          let url = new URL(window.location);
+          url.search = sp;
+          history.pushState({view:view,params:params}, "", url);
+      }
+    </script>
+  </head>
+  <body>
+    <div>
+      <button onclick="transit('view1',{parama:'パラA',paramb:'パラB'})">view1</button>
+      <button onclick="transit('view2',{paramc:'パラC',paramd:'パラD'})">view2</button>
+      <button onclick="transit('view3',{parame:'パラE',paramf:'パラF'})">view3</button>
+    </div>
+    <div id="view1">
+      View1 parama:<span class="parama"></span>, paramb:<span class="paramb"></span>
+    </div>
+    <div id="view2">
+      View2 paramc:<span class="paramc"></span>, paramd:<span class="paramd"></span>
+    </div>
+    <div id="view3">
+      View3 parame:<span class="parame"></span>, paramf:<span class="paramf"></span>
+    </div>
+  </body>
+</html>
